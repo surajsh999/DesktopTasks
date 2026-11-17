@@ -413,7 +413,7 @@ def choose_row_file(row):
 
 def open_header_shortcut(index):
     path = header_ahk_paths[index]
-    if one_click_ahk and path:
+    if path:
         launch_shortcut_file(path)
     else:
         choose_header_file(index, open_after_save=one_click_ahk)
