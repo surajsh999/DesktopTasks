@@ -1,19 +1,19 @@
 {
   "settings": {
-    "width": 829,
-    "height": 647,
-    "x": 62,
-    "y": 141,
+    "width": 284,
+    "height": 286,
+    "x": 716,
+    "y": 343,
     "font_size": 10,
-    "item_width": 202,
+    "item_width": 156,
     "opacity": 0.8,
     "show_note_icon": true,
     "show_shortcut_icon": true,
     "show_comet_icon": true,
     "show_chrome_icon": false,
     "header_ahk_paths": [
-      "",
-      "",
+      "C:/Users/Scout Better/Desktop/AutoHotkey/Clients/mails.ahk",
+      "C:/Users/Scout Better/Desktop/jb failed.txt",
       "C:/Users/Scout Better/Desktop/AutoHotkey/Clients/URL.ahk"
     ],
     "one_click_ahk": false,
@@ -26,18 +26,19 @@
   ],
   "rows": [
     {
-      "item": "Hruthik",
-      "note": "\n\nmanual 12\nAI  1\nResume fjghhfdgdfg",
-      "note_font_size": 10,
-      "ahk_path": "C:/Users/Scout Better/Desktop/AutoHotkey/Clients/Hruthik.ahk",
-      "comet_profile": "",
+      "item": "Onik",
+      "note": "\nManual 0\nAI     0\nResume 0",
+      "note_font_size": 13,
+      "ahk_path": "C:/Users/Scout Better/Desktop/AutoHotkey/Clients/Onik.ahk",
+      "comet_profile": "Profile 34",
       "chrome_profile": "",
+      "hidden": false,
       "ticks": [
         [
           false
         ],
         [
-          true
+          false
         ],
         [
           false
@@ -46,68 +47,12 @@
     },
     {
       "item": "Jacob",
-      "note": "\n\nmanual 8*-\nAI  1\nResume ",
+      "note": "\n\nManual 0\nAI     0\nResume 0",
       "note_font_size": 11,
       "ahk_path": "C:/Users/Scout Better/Desktop/AutoHotkey/Clients/Jacob.ahk",
       "comet_profile": "Profile 36",
       "chrome_profile": "",
-      "ticks": [
-        [
-          false
-        ],
-        [
-          false
-        ],
-        [
-          false
-        ]
-      ]
-    },
-    {
-      "item": "Yachi",
-      "note": "\n\nmanual 7\nAI  9\nResume ",
-      "note_font_size": 11,
-      "ahk_path": "C:/Users/Scout Better/Desktop/AutoHotkey/Clients/Yachi.ahk",
-      "comet_profile": "Profile 24",
-      "chrome_profile": "",
-      "ticks": [
-        [
-          false
-        ],
-        [
-          false
-        ],
-        [
-          false
-        ]
-      ]
-    },
-    {
-      "item": "Afrin",
-      "note": "\n\nmanual 8\nAI  4\nResume ",
-      "note_font_size": 11,
-      "ahk_path": "C:/Users/Scout Better/Desktop/AutoHotkey/Clients/Afrin.ahk",
-      "comet_profile": "Profile 46",
-      "chrome_profile": "",
-      "ticks": [
-        [
-          false
-        ],
-        [
-          false
-        ],
-        [
-          false
-        ]
-      ]
-    },
-    {
-      "item": "Rishwanth",
-      "note": "\n\nmanual 3\nAI  1\nResume \n\nSan Francisco\nSan Jose\nMountain View\nPalo Alto\nRedwood City\nSanta Clara\nSunnyvale\nSouth San Francisco\nMenlo Park\nOakland\nBerkeley",
-      "note_font_size": 10,
-      "ahk_path": "C:/Users/Scout Better/Desktop/AutoHotkey/Clients/Rishwanth.ahk",
-      "comet_profile": "Profile 43",
-      "chrome_profile": "",
+      "hidden": false,
       "ticks": [
         [
           false
@@ -122,11 +67,12 @@
     },
     {
       "item": "Rithvik",
-      "note": "\n\nmanual 1\nAI  0\nResume 1\n\nfor this jd Digital Design / RTL Design roles resume sutes or Design Verification roles resume sutes",
+      "note": "\n\nManual 0\nAI     0\nResume 0\n\nfor this jd Digital Design / RTL Design roles resume sutes or Design Verification roles resume sutes",
       "note_font_size": 11,
       "ahk_path": "C:/Users/Scout Better/Desktop/AutoHotkey/Clients/Rithvik.ahk",
       "comet_profile": "Profile 41",
       "chrome_profile": "",
+      "hidden": false,
       "ticks": [
         [
           false
@@ -141,11 +87,12 @@
     },
     {
       "item": "Durga",
-      "note": "\n\nmanual \nAI  0\nResume ",
+      "note": "\n\nManual 0\nAI     0\nResume 0",
       "note_font_size": 11,
       "ahk_path": "C:/Users/Scout Better/Desktop/AutoHotkey/Clients/Durga.ahk",
       "comet_profile": "Profile 47",
       "chrome_profile": "",
+      "hidden": false,
       "ticks": [
         [
           false
@@ -159,21 +106,82 @@
       ]
     },
     {
-      "item": "Onik",
-      "note": "\nmanual 2\nAI  1\nResume ",
-      "note_font_size": 13,
-      "ahk_path": "C:/Users/Scout Better/Desktop/AutoHotkey/Clients/Onik.ahk",
-      "comet_profile": "Profile 34",
+      "item": "Hruthik",
+      "note": "\n\nManual 0\nAI     0\nResume 0",
+      "note_font_size": 11,
+      "ahk_path": "C:/Users/Scout Better/Desktop/AutoHotkey/Clients/Hruthik.ahk",
+      "comet_profile": "Profile 48",
       "chrome_profile": "",
+      "hidden": false,
       "ticks": [
         [
-          true
+          false
         ],
         [
-          true
+          false
         ],
         [
-          true
+          false
+        ]
+      ]
+    },
+    {
+      "item": "Yachi",
+      "note": "\n\nManual 0\nAI     0\nResume 0",
+      "note_font_size": 11,
+      "ahk_path": "C:/Users/Scout Better/Desktop/AutoHotkey/Clients/Yachi.ahk",
+      "comet_profile": "Profile 24",
+      "chrome_profile": "",
+      "hidden": false,
+      "ticks": [
+        [
+          false
+        ],
+        [
+          false
+        ],
+        [
+          false
+        ]
+      ]
+    },
+    {
+      "item": "Rishwanth",
+      "note": "\n\nManual 0\nAI     0\nResume 0\n\nSan Francisco\nSan Jose\nMountain View\nPalo Alto\nRedwood City\nSanta Clara\nSunnyvale\nSouth San Francisco\nMenlo Park\nOakland\nBerkeley",
+      "note_font_size": 10,
+      "ahk_path": "C:/Users/Scout Better/Desktop/AutoHotkey/Clients/Rishwanth.ahk",
+      "comet_profile": "Profile 43",
+      "chrome_profile": "",
+      "hidden": true,
+      "ticks": [
+        [
+          false
+        ],
+        [
+          false
+        ],
+        [
+          false
+        ]
+      ]
+    },
+    {
+      "item": "Afrin",
+      "note": "\n\nManual 0\nAI     0\nResume 0",
+      "note_font_size": 11,
+      "ahk_path": "C:/Users/Scout Better/Desktop/AutoHotkey/Clients/Afrin.ahk",
+      "comet_profile": "Profile 46",
+      "chrome_profile": "",
+      "hidden": true,
+      "ticks": [
+        [
+          false
+        ],
+        [
+          false
+        ],
+        [
+          false
         ]
       ]
     }

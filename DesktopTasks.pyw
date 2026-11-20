@@ -173,6 +173,7 @@ def save_data():
             "ahk_path": row["launch_settings"]["ahk_path"],
             "comet_profile": row["launch_settings"]["comet_profile"],
             "chrome_profile": row["launch_settings"]["chrome_profile"],
+            "hidden": row["hidden"],
             "ticks": [
                 [tick["text"] == "☑" for tick in cell]
                 for cell in row["ticks"]
@@ -1082,14 +1083,18 @@ def update_minimum_width():
         sum(button.winfo_reqwidth() + 2 for button in header_ahk_buttons)
         if show_title_shortcuts else 0
     ) + ITEM_SECTION_MIN_NAME_WIDTH + 4
+    visible_rows = [
+        row for row in row_widgets if edit_mode or not row["hidden"]
+    ]
     row_min_widths = [
         sum(
             button.winfo_reqwidth() + 2
             for key, button in row["icon_buttons"].items()
             if icon_visibility[key]
         )
+        + (row["hide_button"].winfo_reqwidth() + 2 if edit_mode else 0)
         + ITEM_SECTION_MIN_NAME_WIDTH + 4
-        for row in row_widgets
+        for row in visible_rows
     ]
     item_min_width = max([header_min_width, *row_min_widths])
     item_section_width = max(item_section_width, item_min_width)
@@ -1127,7 +1132,7 @@ def update_minimum_width():
     column_divider.grid(
         row=0,
         column=1,
-        rowspan=max(1, len(row_widgets) + 1),
+        rowspan=max(1, len(visible_rows) + 1),
         sticky="ns",
         padx=1,
         pady=2
@@ -1212,7 +1217,16 @@ def add_column(name="New"):
     save_data()
 
 def layout_task_rows():
-    note_row = next((row for row in row_widgets if row["note_visible"]), None)
+    visible_rows = [
+        row for row in row_widgets if edit_mode or not row["hidden"]
+    ]
+    visible_row_numbers = {
+        id(row): row_number
+        for row_number, row in enumerate(visible_rows, start=1)
+    }
+    note_row = next(
+        (row for row in visible_rows if row["note_visible"]), None
+    )
     for header_cell in column_header_cells:
         if note_row is not None:
             header_cell.grid_remove()
@@ -1226,7 +1240,16 @@ def layout_task_rows():
             remove_btn.pack_forget()
 
     for row in row_widgets:
-        row_number = row["row_number"]
+        if id(row) not in visible_row_numbers:
+            row["item_cell"].grid_remove()
+            for cell_frame in row["cell_frames"]:
+                cell_frame.grid_remove()
+            row["delete"].grid_remove()
+            row["note_panel"].place_forget()
+            continue
+
+        row_number = visible_row_numbers[id(row)]
+        row["row_number"] = row_number
         row["item_cell"].grid_configure(row=row_number)
         row["item"].grid_configure(row=0, column=1)
         if edit_mode:
@@ -1256,7 +1279,7 @@ def layout_task_rows():
             command=lambda task_row=row: remove_row(row_widgets.index(task_row))
         )
 
-    for row in row_widgets:
+    for row in visible_rows:
         if row is note_row:
             grid_area.update_idletasks()
             header_x, header_y, _, _ = grid_area.grid_bbox(2, 0)
@@ -1271,7 +1294,7 @@ def layout_task_rows():
         else:
             row["note_panel"].place_forget()
 
-    column_divider.grid_configure(rowspan=max(1, len(row_widgets) + 1))
+    column_divider.grid_configure(rowspan=max(1, len(visible_rows) + 1))
 
 
 def start_row_drag(event, row):
@@ -1327,6 +1350,16 @@ def toggle_edit_mode():
     update_minimum_width()
 
 
+def toggle_row_hidden(row):
+    row["hidden"] = not row["hidden"]
+    if row["hidden"] and row["note_visible"]:
+        row["note_visible"] = False
+        row["note_button"].configure(fg=MUTED)
+    layout_task_rows()
+    update_minimum_width()
+    save_data()
+
+
 def toggle_icon_visibility(key, label, button):
     icon_visibility[key] = not icon_visibility[key]
     button.configure(
@@ -1365,10 +1398,20 @@ def layout_row_icons(row):
             column += 1
         else:
             button.grid_remove()
+    hide_button = row["hide_button"]
+    if edit_mode:
+        hide_button.configure(
+            text="↶" if row["hidden"] else "⊘",
+            fg=NEON if row["hidden"] else DANGER
+        )
+        hide_button.grid_configure(row=0, column=column)
+    else:
+        hide_button.grid_remove()
+
 
 def add_row(
     item="New item", ticks=None, ahk_path="", comet_profile="", note="",
-    note_font_size=None, chrome_profile=""
+    note_font_size=None, chrome_profile="", hidden=False
 ):
     if not isinstance(ticks, (list, tuple)):
         ticks = []
@@ -1494,6 +1537,22 @@ def add_row(
     )
     note_btn.grid(row=0, column=5, padx=(2, 0))
     add_tooltip(note_btn, "Show or hide this row's note")
+    hide_btn = Button(
+        item_cell,
+        text="↶" if hidden else "⊘",
+        command=lambda: toggle_row_hidden(row_entry),
+        bg=CARD,
+        fg=NEON if hidden else DANGER,
+        activebackground="#155e75",
+        relief="flat",
+        font=("Segoe UI Symbol", 9),
+        width=2,
+        cursor="hand2"
+    )
+    add_tooltip(
+        hide_btn,
+        lambda: "Restore item" if row_entry["hidden"] else "Hide item"
+    )
     icon_buttons = {
         "show_shortcut_icon": ahk_btn,
         "show_comet_icon": comet_btn,
@@ -1506,7 +1565,8 @@ def add_row(
             ahk_btn.winfo_reqheight(),
             comet_btn.winfo_reqheight(),
             chrome_btn.winfo_reqheight(),
-            note_btn.winfo_reqheight()
+            note_btn.winfo_reqheight(),
+            hide_btn.winfo_reqheight()
         )
     )
 
@@ -1546,6 +1606,8 @@ def add_row(
         "note_font_size": note_font_size,
         "note_visible": False,
         "note_button": note_btn,
+        "hidden": bool(hidden),
+        "hide_button": hide_btn,
         "item_cell": item_cell,
         "launch_buttons": [ahk_btn, comet_btn, chrome_btn],
         "icon_buttons": icon_buttons,
@@ -1636,7 +1698,8 @@ def rebuild_table():
             row.get("comet_profile", LEGACY_COMET_PROFILE),
             row.get("note", ""),
             row.get("note_font_size"),
-            row.get("chrome_profile", "")
+            row.get("chrome_profile", ""),
+            row.get("hidden", False)
         )
     update_minimum_width()
 
@@ -1710,26 +1773,35 @@ root.overrideredirect(True)
 settings_open = False
 settings_panel = None
 settings_panel_extra_height = 0
+settings_panel_extra_width = 0
 
 
 def toggle_settings_panel():
-    global settings_open, settings_panel_extra_height
+    global settings_open, settings_panel_extra_height, settings_panel_extra_width
     settings_open = not settings_open
     if settings_open:
+        settings_panel.pack(
+            fill=X, padx=8, pady=(0, 8), before=grid_area
+        )
         root.update_idletasks()
+        settings_panel_extra_width = max(
+            0, settings_panel.winfo_reqwidth() + 16 - root.winfo_width()
+        )
         settings_panel_extra_height = settings_panel.winfo_reqheight() + 8
         root.geometry(
-            f"{root.winfo_width()}x{root.winfo_height() + settings_panel_extra_height}"
+            f"{root.winfo_width() + settings_panel_extra_width}"
+            f"x{root.winfo_height() + settings_panel_extra_height}"
             f"+{root.winfo_x()}+{root.winfo_y()}"
         )
-        settings_panel.pack(fill=X, padx=8, pady=(0, 8))
     else:
         settings_panel.pack_forget()
         root.geometry(
-            f"{root.winfo_width()}x{max(1, root.winfo_height() - settings_panel_extra_height)}"
+            f"{max(1, root.winfo_width() - settings_panel_extra_width)}"
+            f"x{max(1, root.winfo_height() - settings_panel_extra_height)}"
             f"+{root.winfo_x()}+{root.winfo_y()}"
         )
         settings_panel_extra_height = 0
+        settings_panel_extra_width = 0
     save_settings()
 
 
@@ -1769,9 +1841,9 @@ def small_button(parent, text, command, color):
         fg="white",
         activebackground="#155e75",
         relief="flat",
-        font=("Consolas", 9, "bold"),
-        padx=7,
-        pady=4,
+        font=("Consolas", 8, "bold"),
+        padx=6,
+        pady=3,
         cursor="hand2"
     )
 
@@ -1780,25 +1852,27 @@ small_button(top, "✕", close_app, "#9f1239").pack(side=RIGHT, padx=(3, 8), pad
 settings_button = small_button(top, "⚙", toggle_settings_panel, "#334155")
 settings_button.pack(side=RIGHT, padx=3, pady=6)
 
-settings_panel = Frame(root, bg=PANEL, highlightthickness=1, highlightbackground="#1f2937")
+settings_panel = Frame(
+    root, bg=CARD, highlightthickness=1, highlightbackground="#263244"
+)
 settings_panel.pack_forget()
 
-settings_row = Frame(settings_panel, bg=PANEL)
-settings_row.pack(fill=X, padx=8, pady=(6, 0))
-settings_row2 = Frame(settings_panel, bg=PANEL)
-settings_row2.pack(fill=X, padx=8, pady=(0, 6))
-settings_row3 = Frame(settings_panel, bg=PANEL)
-settings_row3.pack(fill=X, padx=8, pady=(0, 6))
+settings_row = Frame(settings_panel, bg=CARD)
+settings_row.pack(fill=X, padx=6, pady=(4, 0))
+settings_row2 = Frame(settings_panel, bg=CARD)
+settings_row2.pack(fill=X, padx=6, pady=(0, 2))
+settings_row3 = Frame(settings_panel, bg=CARD)
+settings_row3.pack(fill=X, padx=6, pady=(0, 4))
 
-small_button(settings_row, "＋ ROW", add_new_row, "#0e7490").pack(side=LEFT, padx=3, pady=4)
-small_button(settings_row, "＋ COL", add_new_column, "#0e7490").pack(side=LEFT, padx=3, pady=4)
-small_button(settings_row, "A−", decrease_font, "#334155").pack(side=LEFT, padx=3, pady=4)
-small_button(settings_row, "A+", increase_font, "#334155").pack(side=LEFT, padx=3, pady=4)
-small_button(settings_row, "UNTICK", untick_all, "#334155").pack(side=LEFT, padx=3, pady=4)
 edit_toggle_button = small_button(
     settings_row, "EDIT: OFF", toggle_edit_mode, "#334155"
 )
-edit_toggle_button.pack(side=LEFT, padx=3, pady=4)
+edit_toggle_button.pack(side=LEFT, padx=2, pady=2)
+small_button(settings_row, "＋ ROW", add_new_row, "#0e7490").pack(side=LEFT, padx=2, pady=2)
+small_button(settings_row, "＋ COL", add_new_column, "#0e7490").pack(side=LEFT, padx=2, pady=2)
+small_button(settings_row, "A−", decrease_font, "#334155").pack(side=LEFT, padx=2, pady=2)
+small_button(settings_row, "A+", increase_font, "#334155").pack(side=LEFT, padx=2, pady=2)
+small_button(settings_row, "UNTICK", untick_all, "#334155").pack(side=LEFT, padx=2, pady=2)
 icon_toggle_buttons = {}
 for key, label in (
     ("show_note_icon", "TEXT"),
@@ -1814,34 +1888,38 @@ for key, label in (
         ),
         "#0e7490" if icon_visibility[key] else "#334155"
     )
-    button.pack(side=LEFT, padx=3, pady=4)
+    button.pack(side=LEFT, padx=2, pady=2)
     icon_toggle_buttons[key] = button
 
 title_shortcuts_button = small_button(
-    settings_row3,
+    settings_row2,
     f"TITLE SHORTCUTS: {'ON' if show_title_shortcuts else 'OFF'}",
     toggle_title_shortcuts,
     "#0e7490" if show_title_shortcuts else "#334155"
 )
-title_shortcuts_button.pack(side=LEFT, padx=3, pady=4)
+title_shortcuts_button.pack(side=LEFT, padx=2, pady=2)
 
-transparency_label = Label(settings_row2, text="Transparency", bg=PANEL, fg=TEXT, font=("Consolas", 9, "bold"))
-transparency_label.pack(side=LEFT, padx=(12, 5), pady=4)
+transparency_label = Label(
+    settings_row3, text="Transparency", bg=CARD, fg=TEXT,
+    font=("Consolas", 8, "bold")
+)
+transparency_label.pack(side=LEFT, padx=(8, 4), pady=2)
 
 transparency_slider = Scale(
-    settings_row2,
+    settings_row3,
     from_=0.35,
     to=1.0,
     resolution=0.05,
     orient=HORIZONTAL,
-    length=110,
-    bg=PANEL,
+    length=100,
+    bg=CARD,
     fg=TEXT,
+    troughcolor="#334155",
     highlightthickness=0,
     command=lambda value: apply_opacity(value)
 )
 transparency_slider.set(window_opacity)
-transparency_slider.pack(side=LEFT, padx=3, pady=4)
+transparency_slider.pack(side=LEFT, padx=2, pady=2)
 
 grid_area = Frame(root, bg=BG)
 grid_area.pack(fill=BOTH, expand=True, padx=8, pady=(0, 8))
@@ -1914,7 +1992,8 @@ for row in data["rows"]:
         row.get("comet_profile", LEGACY_COMET_PROFILE),
         row.get("note", ""),
         row.get("note_font_size"),
-        row.get("chrome_profile", "")
+        row.get("chrome_profile", ""),
+        row.get("hidden", False)
     )
 
 resize_corner = Frame(root, bg=NEON, cursor="bottom_right_corner")
